@@ -54,7 +54,6 @@ def main():
                 for i in range(1, 5) : os.system("mv {} {}".format(os.path.join(in_dir, str(i)), os.path.join(in_dir, "wavs")))
                 os.system("mv {} {}".format(os.path.join(in_dir, "wavs"), os.path.join(in_dir, "wavs_bak")))
                 os.makedirs(os.path.join(in_dir, "wavs"))
-
         train, val = kss.build_from_path(in_dir, out_dir, meta)
 
     write_metadata(train, val, out_dir)

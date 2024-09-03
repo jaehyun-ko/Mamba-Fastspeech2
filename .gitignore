@@ -1,3 +1,10 @@
+# data
+data/
+kss/
+preprocessed/
+*.npy
+vocoder/pretrained_model/
+
 # vim temp file
 *.swp
 
