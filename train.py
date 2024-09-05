@@ -51,7 +51,7 @@ def main(args):
     print("Optimizer and Loss Function Defined.")
 
     # Load checkpoint if exists
-    checkpoint_path = os.path.join(hp.new_checkpoint_path)
+    checkpoint_path = os.path.join(hp.checkpoint_path)
     try:
         checkpoint = torch.load(os.path.join(
             checkpoint_path, 'checkpoint_{}.pth.tar'.format(args.restore_step)))
@@ -81,7 +81,7 @@ def main(args):
         vocoder = None
 
     # Init logger
-    log_path = hp.new_log_path
+    log_path = hp.log_path
     if not os.path.exists(log_path):
         os.makedirs(log_path)
         os.makedirs(os.path.join(log_path, 'train'))
@@ -175,7 +175,7 @@ def main(args):
                 
                 # Save model at checkpoints
                 if current_step % hp.save_step == 0:
-                    checkpoint_path = os.path.join(hp.new_checkpoint_path, f'checkpoint_{current_step}.pth.tar')
+                    checkpoint_path = os.path.join(hp.checkpoint_path, f'checkpoint_{current_step}.pth.tar')
                     torch.save({'model': model.state_dict(), 'optimizer': optimizer.state_dict()}, checkpoint_path)
                     wandb.save(checkpoint_path)  # Save model to wandb as well
                     print("Model saved at step {}...".format(current_step))

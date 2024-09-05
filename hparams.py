@@ -94,10 +94,8 @@ max_seq_len = 1000
 # Checkpoints and synthesis path
 preprocessed_path = os.path.join("./preprocessed/", dataset)
 checkpoint_path = os.path.join("./ckpt/", dataset)
-new_checkpoint_path = os.path.join("./ckpt_new/", dataset)
 eval_path = os.path.join("./eval/", dataset)
 log_path = os.path.join("./log/", dataset)
-new_log_path = os.path.join("./log_new/", dataset)
 test_path = "./results"
 
 
