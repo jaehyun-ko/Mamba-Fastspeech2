@@ -18,12 +18,17 @@ from optimizer import ScheduledOptim
 from evaluate import evaluate
 import utils
 import audio as Audio
+import wandb
 
 def main(args):
+    # Initialize wandb
+    wandb.init(project="FastSpeech2", config=hp.config, resume="allow", name="Training_FastSpeech2")
+    
+    
     torch.manual_seed(0)
 
     # Get device
-    device = torch.device('cuda'if torch.cuda.is_available()else 'cpu')
+    device = torch.device('cuda'if torch.cuda.is_available() else 'cpu')
     
     # Get dataset
     dataset = Dataset("train.txt") 
@@ -35,6 +40,9 @@ def main(args):
     print("Model Has Been Defined")
     num_param = utils.get_param_num(model)
     print('Number of FastSpeech2 Parameters:', num_param)
+    
+    # Log model architecture
+    wandb.watch(model)
 
     # Optimizer and loss
     optimizer = torch.optim.Adam(model.parameters(), betas=hp.betas, eps=hp.eps, weight_decay = hp.weight_decay)
@@ -43,7 +51,7 @@ def main(args):
     print("Optimizer and Loss Function Defined.")
 
     # Load checkpoint if exists
-    checkpoint_path = os.path.join(hp.checkpoint_path)
+    checkpoint_path = os.path.join(hp.new_checkpoint_path)
     try:
         checkpoint = torch.load(os.path.join(
             checkpoint_path, 'checkpoint_{}.pth.tar'.format(args.restore_step)))
@@ -73,7 +81,7 @@ def main(args):
         vocoder = None
 
     # Init logger
-    log_path = hp.log_path
+    log_path = hp.new_log_path
     if not os.path.exists(log_path):
         os.makedirs(log_path)
         os.makedirs(os.path.join(log_path, 'train'))
@@ -137,6 +145,20 @@ def main(args):
                     f_f_loss.write(str(f_l)+"\n")
                 with open(os.path.join(log_path, "energy_loss.txt"), "a") as f_e_loss:
                     f_e_loss.write(str(e_l)+"\n")
+                    
+                    
+                    
+                # Log losses to wandb
+                wandb.log({
+                    "total_loss": total_loss.item(),
+                    "mel_loss": mel_loss.item(),
+                    "mel_postnet_loss": mel_postnet_loss.item(),
+                    "duration_loss": d_loss.item(),
+                    "f0_loss": f_loss.item(),
+                    "energy_loss": e_loss.item(),
+                    "step": current_step
+                })
+                
                  
                 # Backward
                 total_loss = total_loss / hp.acc_steps
@@ -150,6 +172,13 @@ def main(args):
                 # Update weights
                 scheduled_optim.step_and_update_lr()
                 scheduled_optim.zero_grad()
+                
+                # Save model at checkpoints
+                if current_step % hp.save_step == 0:
+                    checkpoint_path = os.path.join(hp.new_checkpoint_path, f'checkpoint_{current_step}.pth.tar')
+                    torch.save({'model': model.state_dict(), 'optimizer': optimizer.state_dict()}, checkpoint_path)
+                    wandb.save(checkpoint_path)  # Save model to wandb as well
+                    print("Model saved at step {}...".format(current_step))
                 
                 # Print
                 if current_step % hp.log_step == 0:
@@ -172,12 +201,14 @@ def main(args):
                         f_log.write(str3 + "\n")
                         f_log.write("\n")
 
+                # Logger
                 train_logger.add_scalar('Loss/total_loss', t_l, current_step)
                 train_logger.add_scalar('Loss/mel_loss', m_l, current_step)
                 train_logger.add_scalar('Loss/mel_postnet_loss', m_p_l, current_step)
                 train_logger.add_scalar('Loss/duration_loss', d_l, current_step)
                 train_logger.add_scalar('Loss/F0_loss', f_l, current_step)
                 train_logger.add_scalar('Loss/energy_loss', e_l, current_step)
+                
                 
                 if current_step % hp.save_step == 0:
                     torch.save({'model': model.state_dict(), 'optimizer': optimizer.state_dict(
@@ -190,6 +221,18 @@ def main(args):
                         d_l, f_l, e_l, m_l, m_p_l = evaluate(model, current_step, vocoder)
                         t_l = d_l + f_l + e_l + m_l + m_p_l
                         
+                        # Log validation losses to wandb
+                        wandb.log({
+                            "val_total_loss": t_l,
+                            "val_mel_loss": m_l,
+                            "val_mel_postnet_loss": m_p_l,
+                            "val_duration_loss": d_l,
+                            "val_f0_loss": f_l,
+                            "val_energy_loss": e_l,
+                            "step": current_step
+                        })
+                        
+                        # Logger
                         val_logger.add_scalar('Loss/total_loss', t_l, current_step)
                         val_logger.add_scalar('Loss/mel_loss', m_l, current_step)
                         val_logger.add_scalar('Loss/mel_postnet_loss', m_p_l, current_step)

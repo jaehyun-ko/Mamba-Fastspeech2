@@ -4,7 +4,7 @@ kss/
 preprocessed/
 *.npy
 vocoder/pretrained_model/
-
+wandb/
 
 # vim temp file
 *.swp
