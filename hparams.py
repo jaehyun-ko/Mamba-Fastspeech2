@@ -1,4 +1,46 @@
+
+
 import os
+
+# wandb
+config = {
+    # Dataset
+    'dataset' : "kss",
+    'data_path' : os.path.join("/home/DB/slh/projects/Korean-FastSpeech2-Pytorch/kss", "kss"),
+    # Audio and mel
+    'sampling_rate' : 22050,
+    'n_mel_channels' : 80,
+    'mel_fmin' : 0,
+    'mel_fmax' : 8000,
+    # FastSpeech 2
+    'encoder_layer' : 4,
+    'encoder_head' : 2,
+    'encoder_hidden' : 256,
+    'decoder_layer' : 4,
+    'decoder_head' : 2,
+    'decoder_hidden' : 256,
+    'fft_conv1d_filter_size' : 1024,
+    'variance_predictor_filter_size' : 256,
+    'variance_predictor_kernel_size' : 3,
+    'variance_predictor_dropout' : 0.5,
+    'max_seq_len' : 1000,
+    # Optimizer
+    'batch_size' : 16,
+    'epochs' : 1000,
+    'n_warm_up_step' : 4000,
+    'grad_clip_thresh' : 1.0,
+    'acc_steps' : 1,
+    'betas' : (0.9, 0.98),
+    'eps' : 1e-9,
+    'weight_decay' : 0.,
+    # Save, log and synthesis
+    'save_step' : 10000,
+    'eval_step' : 1000,
+    'log_step' : 1000
+    }
+
+
+
 ### kss ###
 dataset = "kss"
 data_path = os.path.join("/home/DB/slh/projects/Korean-FastSpeech2-Pytorch/kss", dataset)
@@ -52,8 +94,10 @@ max_seq_len = 1000
 # Checkpoints and synthesis path
 preprocessed_path = os.path.join("./preprocessed/", dataset)
 checkpoint_path = os.path.join("./ckpt/", dataset)
+new_checkpoint_path = os.path.join("./ckpt_new/", dataset)
 eval_path = os.path.join("./eval/", dataset)
 log_path = os.path.join("./log/", dataset)
+new_log_path = os.path.join("./log_new/", dataset)
 test_path = "./results"
 
 
