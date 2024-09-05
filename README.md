@@ -26,7 +26,7 @@ pip install g2pk
 
 다음으로, 필요한 모듈을 pip를 이용하여 설치합니다.
 ```
-pip install -r requirements.txt
+
 ```
 
 **[WARNING] anaconda 가상환경을 사용하시는 것을 권장드립니다.**

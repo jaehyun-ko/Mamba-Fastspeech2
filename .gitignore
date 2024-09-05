@@ -5,6 +5,7 @@ preprocessed/
 *.npy
 vocoder/pretrained_model/
 
+
 # vim temp file
 *.swp
 
@@ -143,3 +144,8 @@ ckpt/
 results/
 eval/
 vocoder/pretrained_models/
+korean-single-speaker-speech-dataset.zip
+preprocessed/kss/energy_stat.npy
+preprocessed/kss/mel_stat.npy
+preprocessed/kss/energy_stat.npy
+preprocessed/kss/energy_stat.npy

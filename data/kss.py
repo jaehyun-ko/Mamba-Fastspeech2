@@ -34,7 +34,6 @@ def build_from_path(in_dir, out_dir, meta):
         for index, line in enumerate(f):
 
             parts = line.strip().split('|')
-            
             basename, text = parts[0], parts[3]
 
             ret = process_utterance(in_dir, out_dir, basename, scalers)
@@ -48,7 +47,7 @@ def build_from_path(in_dir, out_dir, meta):
                 val.append(info)
             else:
                 train.append(info)
-                
+
             if index % 100 == 0:
                 print("Done %d" % index)
 
@@ -122,24 +121,9 @@ def process_utterance(in_dir, out_dir, basename, scalers):
    
     mel_scaler, f0_scaler, energy_scaler = scalers
 
-    mel_scaler.partial_fit(mel_spectrogram.T)
-    try:
-        f0_scaler.partial_fit(f0[f0!=0].reshape(-1, 1))
-    except:
-        # 인덱스 출력
-        parts = wav_path.strip().split('/')
-        idx = parts[2][2:6]
-        print(idx)
-        
-        # transcript sample 제외
-        with open(os.path.join(in_dir, hp.meta_name), encoding='utf-8') as f:
-            lines = f.readlines()
-            filtered_lines = [line for line in lines if idx not in line]
 
-        with open(os.path.join(in_dir, hp.meta_name), 'w', encoding='utf-8') as f:
-            f.writelines(filtered_lines)
-                     
-        
+    mel_scaler.partial_fit(mel_spectrogram.T)
+    f0_scaler.partial_fit(f0[f0!=0].reshape(-1, 1))
     energy_scaler.partial_fit(energy[energy != 0].reshape(-1, 1))
 
     return '|'.join([basename, text]), mel_spectrogram.shape[1]
